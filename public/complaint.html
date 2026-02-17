@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Complaint - ElectroSafe</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="navbar">
+            <div class="logo">ElectroSafe</div>
+            <nav class="nav-links">
+                <a href="index.html" data-i18n="nav_home">Home</a>
+                <a href="complaint.html" data-i18n="nav_register">Register Complaint</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 data-i18n="reg_title">Register New Complaint</h2>
+            <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;" data-i18n="reg_subtitle">Please provide
+                accurate details for quick resolution.</p>
+
+            <form id="complaintForm">
+                <div class="form-group">
+                    <label data-i18n="lbl_action_type">Action Type</label>
+                    <select id="anonymous" onchange="toggleIdentity()">
+                        <option value="false" data-i18n="opt_personal">Personal Complaint</option>
+                        <option value="true" data-i18n="opt_anonymous">Anonymous Report (Theft/Illegal)</option>
+                    </select>
+                </div>
+
+                <div id="identityFields">
+                    <div class="form-group">
+                        <label data-i18n="lbl_fullname">Full Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="lbl_mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" pattern="[0-9]{10}" required data-i18n-placeholder="ph_mobile"
+                            placeholder="10-digit number">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="lbl_email">Email Address</label>
+                        <input type="email" id="email" data-i18n-placeholder="ph_email" placeholder="example@mail.com">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label data-i18n="lbl_district">District</label>
+                        <input type="text" id="district" required data-i18n-placeholder="ph_district"
+                            placeholder="e.g. Nashik">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label data-i18n="lbl_village">Village/Area</label>
+                        <input type="text" id="village" required data-i18n-placeholder="ph_village"
+                            placeholder="e.g. Rampur">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="lbl_category">Complaint Category</label>
+                    <select id="category" required>
+                        <option value="" data-i18n="opt_select_issue">Select Issue</option>
+                        <option value="No electricity" data-i18n="cat_no_power">No electricity (Power Cut)</option>
+                        <option value="Low voltage" data-i18n="cat_low_voltage">Low voltage / Fluctuation</option>
+                        <option value="Transformer damage" data-i18n="cat_transformer">Transformer Damage/Sparks
+                        </option>
+                        <option value="Street light" data-i18n="cat_streetlight">Street light not working</option>
+                        <option value="Wire broken" data-i18n="cat_wire">Wire broken / Fallen Pole</option>
+                        <option value="Theft" data-i18n="cat_theft">Electricity Theft</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="lbl_description">Description</label>
+                    <textarea id="description" rows="4" data-i18n-placeholder="ph_description"
+                        placeholder="Describe the issue in detail..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="lbl_photo">Upload Photo (Optional)</label>
+                    <input type="file" id="photo" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%;" data-i18n="btn_submit">Submit Complaint</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="fab-container">
+        <button class="fab" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="fab" onclick="toggleLanguage()" title="Switch Language (En/Hi)">
+            <i class="fas fa-language"></i>
+        </button>
+    </div>
+
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        function toggleIdentity() {
+            const isAnon = document.getElementById('anonymous').value === 'true';
+            const identityFields = document.getElementById('identityFields');
+            const nameInput = document.getElementById('name');
+            const mobileInput = document.getElementById('mobile');
+
+            if (isAnon) {
+                identityFields.style.opacity = '0.5';
+                identityFields.style.pointerEvents = 'none';
+                nameInput.removeAttribute('required');
+                mobileInput.removeAttribute('required');
+            } else {
+                identityFields.style.opacity = '1';
+                identityFields.style.pointerEvents = 'auto';
+                nameInput.setAttribute('required', 'true');
+                mobileInput.setAttribute('required', 'true');
+            }
+        }
+    </script>
+</body>
+
+</html>

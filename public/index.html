@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electricity Complaint System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="navbar">
+            <div class="logo"><i class="fas fa-bolt"></i> ElectroSafe</div>
+            <nav class="nav-links">
+                <a href="index.html" data-i18n="nav_home">Home</a>
+                <a href="complaint.html" data-i18n="nav_register">Register Complaint</a>
+                <a href="#track" data-i18n="nav_track">Track Status</a>
+                <a href="admin.html" data-i18n="nav_admin">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1 data-i18n="hero_title">Village Electricity Grievance Portal</h1>
+        <p data-i18n="hero_subtitle">Fast, Transparent, and Efficient Resolution of Electricity Issues.</p>
+        <br>
+        <a href="complaint.html" class="btn btn-secondary" data-i18n="btn_file_complaint">File a Complaint</a>
+    </div>
+
+    <div class="container" id="track">
+        <div class="card">
+            <h2><i class="fas fa-search"></i> <span data-i18n="track_title">Track Your Complaint</span></h2>
+            <br>
+            <div class="form-group">
+                <input type="text" id="trackId" data-i18n-placeholder="track_placeholder"
+                    placeholder="Enter Complaint ID (e.g., CMS-1234)">
+            </div>
+            <button class="btn" onclick="trackComplaint()" data-i18n="btn_check_status">Check Status</button>
+            <button class="btn btn-secondary" onclick="clearStatus()" style="margin-left: 10px;"
+                data-i18n="btn_clear">Clear</button>
+
+            <div id="statusResult" style="margin-top: 20px; display: none;">
+                <!-- Result will appear here -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 data-i18n="recent_updates">Recent Updates</h2>
+            <p data-i18n="recent_msg">We are currently resolving issues in <strong>Rampur</strong> and
+                <strong>Sonpur</strong> villages.
+                Expected resolution time: 4 Hours.</p>
+        </div>
+    </div>
+
+    <div class="fab-container">
+        <a href="https://wa.me/919028991967" target="_blank" class="fab"
+            style="background-color: #25D366; text-decoration: none;" title="Chat on WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <button class="fab" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="fab" onclick="toggleLanguage()" title="Switch Language (En/Hi)">
+            <i class="fas fa-language"></i>
+        </button>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+
+</html>
