@@ -25,7 +25,7 @@
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/hariharkadhe/ElectroSafe
+git clone https://github.com/hariharkadhe/ElectroSafe.git
 cd ElectroSafe
 ```
 
