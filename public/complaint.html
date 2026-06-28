@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Complaint - ElectroSafe</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Map section styles */
+        .map-section {
+            margin-bottom: 20px;
+        }
+
+        .map-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .map-label-row label {
+            margin-bottom: 0;
+        }
+
+        .map-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,212,255,0.2);
+            margin-top: 8px;
+            display: none;
+            overflow: hidden;
+        }
+
+        #map.active {
+            display: block;
+        }
+
+        .location-info {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(0,212,255,0.06);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: var(--primary, #00d4ff);
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .location-info.active {
+            display: flex;
+        }
+
+        .photo-preview {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+
+        .photo-preview.active {
+            display: block;
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            align-items: center;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted, #4a5568);
+        }
+
+        .step.active {
+            color: var(--primary, #00d4ff);
+        }
+
+        .step.done {
+            color: #00e676;
+        }
+
+        .step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .step.active .step-num {
+            background: rgba(0,212,255,0.15);
+            border-color: var(--primary, #00d4ff);
+        }
+
+        .step.done .step-num {
+            background: rgba(0,230,118,0.15);
+            border-color: #00e676;
+        }
+
+        .step-divider {
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="navbar">
+            <div class="logo"><i class="fas fa-bolt"></i> ElectroSafe</div>
+            <nav class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="complaint.html"><i class="fas fa-file-alt"></i> Register Complaint</a>
+                <a href="admin.html"><i class="fas fa-shield-alt"></i> Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2><i class="fas fa-file-alt"></i> Register New Complaint</h2>
+            <p style="color: var(--text-secondary, #8a96a8); font-size: 0.9em; margin-bottom: 24px;">
+                Fill in all required details. Pin your location on the map for faster resolution.
+            </p>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">
+                    <div class="step-num">1</div>
+                    <span>Your Info</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step" id="step2">
+                    <div class="step-num">2</div>
+                    <span>Location</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step" id="step3">
+                    <div class="step-num">3</div>
+                    <span>Issue Details</span>
+                </div>
+            </div>
+
+            <form id="complaintForm">
+
+                <!-- SECTION 1: Identity -->
+                <div class="form-group">
+                    <label><i class="fas fa-user-shield" style="color: var(--primary, #00d4ff); margin-right:6px;"></i>Action Type</label>
+                    <select id="anonymous" onchange="toggleIdentity()">
+                        <option value="false">👤 Personal Complaint</option>
+                        <option value="true">🕵️ Anonymous Report (Theft/Illegal)</option>
+                    </select>
+                </div>
+
+                <div id="identityFields">
+                    <div style="display: flex; gap: 12px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Full Name</label>
+                            <input type="text" id="name" required placeholder="Your full name">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Mobile Number</label>
+                            <input type="tel" id="mobile" pattern="[0-9]{10}" required placeholder="10-digit number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address <span style="color: var(--text-muted, #4a5568); font-weight: 400;">(optional)</span></label>
+                        <input type="email" id="email" placeholder="example@mail.com">
+                    </div>
+                </div>
+
+                <!-- SECTION 2: Location -->
+                <div class="form-group">
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1;">
+                            <label>District</label>
+                            <input type="text" id="district" required placeholder="e.g. Nashik">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Village/Area</label>
+                            <input type="text" id="village" required placeholder="e.g. Rampur">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAP SECTION -->
+                <div class="map-section form-group">
+                    <div class="map-label-row">
+                        <label><i class="fas fa-map-marker-alt" style="color: var(--primary, #00d4ff); margin-right:6px;"></i>Pin Location on Map <span style="color: var(--text-muted, #4a5568); font-weight: 400;">(optional)</span></label>
+                        <div class="map-btn-group">
+                            <button type="button" class="btn btn-sm" onclick="getMyLocation()">
+                                <i class="fas fa-crosshairs"></i> My Location
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleMap()">
+                                <i class="fas fa-map"></i> Open Map
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="locationInfo" class="location-info">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="locationText">Location selected</span>
+                        <button type="button" onclick="clearLocation()" style="margin-left:auto; background:none; border:none; color: var(--danger,#ff4757); cursor:pointer; font-size:0.85rem;">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+
+                    <div id="map"></div>
+
+                    <!-- Hidden lat/lng fields -->
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                </div>
+
+                <!-- SECTION 3: Issue -->
+                <div class="form-group">
+                    <label><i class="fas fa-bolt" style="color: var(--primary, #00d4ff); margin-right:6px;"></i>Complaint Category</label>
+                    <select id="category" required>
+                        <option value="">Select Issue Type</option>
+                        <option value="No electricity">⚡ No electricity (Power Cut)</option>
+                        <option value="Low voltage">📉 Low voltage / Fluctuation</option>
+                        <option value="Transformer damage">💥 Transformer Damage/Sparks</option>
+                        <option value="Street light">🌃 Street light not working</option>
+                        <option value="Wire broken">🔌 Wire broken / Fallen Pole</option>
+                        <option value="Theft">🚨 Electricity Theft</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="4" placeholder="Describe the issue in detail (what happened, when it started, how severe it is)..."
+                        required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Photo <span style="color: var(--text-muted, #4a5568); font-weight: 400;">(optional)</span></label>
+                    <input type="file" id="photo" accept="image/*" onchange="previewPhoto(this)">
+                    <div class="photo-preview" id="photoPreview">
+                        <img id="previewImg" src="" alt="Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; padding: 14px; font-size: 1rem;">
+                    <i class="fas fa-paper-plane"></i> Submit Complaint
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="fab-container">
+        <button class="fab" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="fab" onclick="toggleLanguage()" title="Switch Language (En/Hi)">
+            <i class="fas fa-language"></i>
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Leaflet.js for FREE map (no API key needed) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        let map = null;
+        let marker = null;
+        let selectedLat = null;
+        let selectedLng = null;
+
+        // ---- IDENTITY TOGGLE ----
+        function toggleIdentity() {
+            const isAnon = document.getElementById('anonymous').value === 'true';
+            const identityFields = document.getElementById('identityFields');
+            const nameInput = document.getElementById('name');
+            const mobileInput = document.getElementById('mobile');
+
+            if (isAnon) {
+                identityFields.style.opacity = '0.4';
+                identityFields.style.pointerEvents = 'none';
+                nameInput.removeAttribute('required');
+                mobileInput.removeAttribute('required');
+            } else {
+                identityFields.style.opacity = '1';
+                identityFields.style.pointerEvents = 'auto';
+                nameInput.setAttribute('required', 'true');
+                mobileInput.setAttribute('required', 'true');
+            }
+        }
+
+        // ---- MAP ----
+        function toggleMap() {
+            const mapDiv = document.getElementById('map');
+            mapDiv.classList.toggle('active');
+
+            if (mapDiv.classList.contains('active') && !map) {
+                initMap(20.5937, 78.9629, 5); // Default: India
+            }
+        }
+
+        function initMap(lat, lng, zoom) {
+            map = L.map('map').setView([lat, lng], zoom);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Click to place marker
+            map.on('click', function(e) {
+                placeMarker(e.latlng.lat, e.latlng.lng);
+            });
+        }
+
+        function placeMarker(lat, lng) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            const customIcon = L.divIcon({
+                html: '<div style="background: linear-gradient(135deg, #00d4ff, #0066ff); width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.4);"></div>',
+                className: '',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32]
+            });
+
+            marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+            selectedLat = lat.toFixed(6);
+            selectedLng = lng.toFixed(6);
+
+            document.getElementById('latitude').value = selectedLat;
+            document.getElementById('longitude').value = selectedLng;
+
+            // Reverse geocode using Nominatim (free)
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+                .then(r => r.json())
+                .then(data => {
+                    const address = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    showLocationInfo(address);
+
+                    // Auto-fill district and village
+                    const addr = data.address || {};
+                    if (addr.county || addr.district) {
+                        document.getElementById('district').value = addr.county || addr.district || '';
+                    }
+                    if (addr.village || addr.suburb || addr.town || addr.city) {
+                        document.getElementById('village').value = addr.village || addr.suburb || addr.town || addr.city || '';
+                    }
+                })
+                .catch(() => {
+                    showLocationInfo(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+                });
+        }
+
+        function showLocationInfo(address) {
+            const info = document.getElementById('locationInfo');
+            document.getElementById('locationText').textContent = address;
+            info.classList.add('active');
+        }
+
+        function getMyLocation() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser.');
+                return;
+            }
+
+            const btn = event.target.closest('button');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting...';
+            btn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+
+                    // Show map if hidden
+                    const mapDiv = document.getElementById('map');
+                    if (!mapDiv.classList.contains('active')) {
+                        mapDiv.classList.add('active');
+                        initMap(lat, lng, 15);
+                    } else {
+                        map.setView([lat, lng], 15);
+                    }
+
+                    placeMarker(lat, lng);
+
+                    btn.innerHTML = '<i class="fas fa-crosshairs"></i> My Location';
+                    btn.disabled = false;
+                },
+                (err) => {
+                    alert('Could not get your location. Please pin it manually on the map.');
+                    btn.innerHTML = '<i class="fas fa-crosshairs"></i> My Location';
+                    btn.disabled = false;
+                }
+            );
+        }
+
+        function clearLocation() {
+            if (marker && map) {
+                map.removeLayer(marker);
+                marker = null;
+            }
+            selectedLat = null;
+            selectedLng = null;
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            document.getElementById('locationInfo').classList.remove('active');
+        }
+
+        // ---- PHOTO PREVIEW ----
+        function previewPhoto(input) {
+            const preview = document.getElementById('photoPreview');
+            const img = document.getElementById('previewImg');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                    preview.classList.add('active');
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.classList.remove('active');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
