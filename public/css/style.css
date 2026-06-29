@@ -3,42 +3,45 @@
 /* ===========================
    CSS VARIABLES & ROOT
    =========================== */
+/* ===========================
+   LIGHT MODE (DEFAULT)
+   =========================== */
 :root {
-    /* Primary Palette - Electric Blue/Teal */
-    --primary:        #00d4ff;
-    --primary-dark:   #0099cc;
-    --primary-glow:   rgba(0, 212, 255, 0.3);
+    /* Primary */
+    --primary:        #0066ff;
+    --primary-dark:   #0052cc;
+    --primary-glow:   rgba(0, 102, 255, 0.2);
 
-    /* Accent - Electric Yellow */
-    --accent:         #f5c518;
-    --accent-dark:    #d4a800;
+    /* Accent */
+    --accent:         #f5a623;
+    --accent-dark:    #d4880a;
 
-    /* Background Layers */
-    --bg-base:        #0a0e1a;
-    --bg-surface:     #0f1629;
-    --bg-card:        rgba(255,255,255,0.04);
-    --bg-card-hover:  rgba(255,255,255,0.08);
+    /* Backgrounds - LIGHT */
+    --bg-base:        #f0f4ff;
+    --bg-surface:     #ffffff;
+    --bg-card:        #ffffff;
+    --bg-card-hover:  #f8faff;
 
-    /* Text */
-    --text-primary:   #e8edf5;
-    --text-secondary: #8a96a8;
-    --text-muted:     #4a5568;
+    /* Text - DARK for light mode */
+    --text-primary:   #1a1f36;
+    --text-secondary: #4a5568;
+    --text-muted:     #9aa5b4;
 
-    /* Status Colors */
-    --success:        #00e676;
-    --warning:        #f5c518;
-    --danger:         #ff4757;
+    /* Status */
+    --success:        #00b057;
+    --warning:        #d4920a;
+    --danger:         #e53e3e;
 
     /* Borders & Shadows */
-    --border:         rgba(255,255,255,0.08);
-    --border-glow:    rgba(0, 212, 255, 0.4);
-    --shadow-card:    0 8px 32px rgba(0,0,0,0.4);
-    --shadow-glow:    0 0 30px rgba(0, 212, 255, 0.15);
+    --border:         rgba(0,0,0,0.1);
+    --border-glow:    rgba(0,102,255,0.3);
+    --shadow-card:    0 4px 24px rgba(0,0,0,0.08);
+    --shadow-glow:    0 0 20px rgba(0,102,255,0.1);
 
     /* Gradients */
-    --gradient-hero:  linear-gradient(135deg, #0a0e1a 0%, #0d1b3e 50%, #0a0e1a 100%);
-    --gradient-btn:   linear-gradient(135deg, #00d4ff, #0066ff);
-    --gradient-card:  linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    --gradient-hero:  linear-gradient(135deg, #e8f0ff 0%, #f0f4ff 100%);
+    --gradient-btn:   linear-gradient(135deg, #0066ff, #0044cc);
+    --gradient-card:  linear-gradient(145deg, #ffffff, #f8faff);
 
     /* Transition */
     --transition:     all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -63,16 +66,14 @@ body {
     color: var(--text-primary);
     line-height: 1.7;
     min-height: 100vh;
-    background-image:
-        radial-gradient(ellipse at 20% 20%, rgba(0,102,255,0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 80%, rgba(0,212,255,0.06) 0%, transparent 50%);
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* ===========================
    HEADER & NAVBAR
    =========================== */
 header {
-    background: rgba(10, 14, 26, 0.85);
+    background: var(--bg-surface);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
@@ -80,7 +81,8 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    transition: background 0.4s ease;
 }
 
 .navbar {
@@ -180,7 +182,7 @@ header {
 .hero h1 {
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 800;
-    background: linear-gradient(135deg, #ffffff 0%, var(--primary) 60%, #0066ff 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 60%, var(--primary-dark) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -349,7 +351,7 @@ select,
 textarea {
     width: 100%;
     padding: 12px 16px;
-    background: rgba(255,255,255,0.04);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 10px;
     font-size: 0.95rem;
@@ -369,8 +371,8 @@ input:focus,
 select:focus,
 textarea:focus {
     border-color: var(--primary);
-    background: rgba(0,212,255,0.05);
-    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 select option {
@@ -417,27 +419,70 @@ textarea {
 }
 
 /* ===========================
-   DARK MODE (refined for dark-by-default)
+   DARK MODE
    =========================== */
 body.dark-mode {
-    background-color: #030507;
+    --primary:        #00d4ff;
+    --primary-dark:   #0099cc;
+    --primary-glow:   rgba(0,212,255,0.3);
+    --bg-base:        #0a0e1a;
+    --bg-surface:     #0f1629;
+    --bg-card:        rgba(255,255,255,0.04);
+    --bg-card-hover:  rgba(255,255,255,0.08);
+    --text-primary:   #e8edf5;
+    --text-secondary: #8a96a8;
+    --text-muted:     #4a5568;
+    --border:         rgba(255,255,255,0.08);
+    --shadow-card:    0 8px 32px rgba(0,0,0,0.4);
+    --shadow-glow:    0 0 30px rgba(0,212,255,0.15);
+    --gradient-hero:  linear-gradient(135deg, #0a0e1a 0%, #0d1b3e 50%, #0a0e1a 100%);
+    --gradient-btn:   linear-gradient(135deg, #00d4ff, #0066ff);
+    --gradient-card:  linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    --success:        #00e676;
+    --warning:        #f5c518;
+    --danger:         #ff4757;
+    background-color: var(--bg-base);
+    background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(0,102,255,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,212,255,0.06) 0%, transparent 50%);
+    color: var(--text-primary);
+}
+
+body.dark-mode header {
+    background: rgba(10,14,26,0.9);
+    border-bottom-color: rgba(255,255,255,0.08);
 }
 
 body.dark-mode .card {
-    background: rgba(255,255,255,0.02);
-    border-color: rgba(255,255,255,0.05);
+    background: var(--gradient-card);
+    border-color: rgba(255,255,255,0.07);
 }
 
 body.dark-mode input,
 body.dark-mode select,
 body.dark-mode textarea {
-    background: rgba(255,255,255,0.03);
-    border-color: rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
     color: var(--text-primary);
 }
 
-body.dark-mode header {
-    background: rgba(3,5,7,0.9);
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: var(--text-muted);
+}
+
+body.dark-mode select option {
+    background: #0f1629;
+    color: #e8edf5;
+}
+
+body.dark-mode .nav-links a {
+    color: rgba(255,255,255,0.6);
+}
+
+body.dark-mode .nav-links a:hover {
+    color: #00d4ff;
+    background: rgba(0,212,255,0.08);
 }
 
 /* ===========================
