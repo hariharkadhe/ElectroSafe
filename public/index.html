@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroSafe - Village Electricity Grievance Portal</title>
+    <meta name="description" content="Register and track electricity complaints for your village. Fast, transparent, and efficient resolution of power issues.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ===== HERO ===== */
+        .hero {
+            text-align: center;
+            padding: 100px 24px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.25);
+            color: #00d4ff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 60%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.5);
+            max-width: 560px;
+            margin: 0 auto 36px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ===== QUICK STATS BAR ===== */
+        .stats-bar {
+            background: rgba(255,255,255,0.03);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 20px 24px;
+        }
+
+        .stats-bar-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            text-align: center;
+        }
+
+        .stat-item strong {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-item span {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== TRACK STATUS MODAL ===== */
+        .track-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .track-overlay.show { display: flex; }
+
+        .track-modal {
+            background: #0f1629;
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(0,212,255,0.08);
+        }
+
+        .track-modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #0066ff);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .track-close {
+            position: absolute;
+            right: 16px; top: 14px;
+            background: none; border: none;
+            color: rgba(255,255,255,0.3);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .track-close:hover { color: #ff4757; }
+
+        .track-result {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(0,212,255,0.05);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .track-result.show { display: block; }
+
+        .track-result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+
+        .track-result-row:last-child { border-bottom: none; }
+        .track-result-row .label { color: rgba(255,255,255,0.4); }
+        .track-result-row .value { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+        /* ===== FEATURES SECTION ===== */
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 70px 24px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: rgba(255,255,255,0.4);
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--fc-color, linear-gradient(90deg, #00d4ff, #0066ff));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(0,212,255,0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
+
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.6;
+        }
+
+        /* ===== HOW IT WORKS ===== */
+        .how-section {
+            background: rgba(255,255,255,0.02);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+        }
+
+        .step-item {
+            text-align: center;
+        }
+
+        .step-num-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff22, #0066ff22);
+            border: 2px solid rgba(0,212,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #00d4ff;
+            margin: 0 auto 16px;
+        }
+
+        .step-item h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .step-item p {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.6;
+        }
+
+        /* ===== CATEGORIES ===== */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+
+        .cat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .cat-card:hover {
+            background: rgba(0,212,255,0.06);
+            border-color: rgba(0,212,255,0.25);
+            transform: translateY(-3px);
+        }
+
+        .cat-card .cat-icon { font-size: 1.8rem; margin-bottom: 10px; }
+        .cat-card .cat-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+        /* ===== ALERT BANNER ===== */
+        .alert-banner {
+            background: rgba(245,197,24,0.08);
+            border: 1px solid rgba(245,197,24,0.2);
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .alert-banner i { color: #f5c518; font-size: 1.1rem; }
+        .alert-banner p { font-size: 0.88rem; color: rgba(255,255,255,0.65); margin: 0; }
+        .alert-banner strong { color: #f5c518; }
+
+        /* ===== CTA SECTION ===== */
+        .cta-section {
+            text-align: center;
+            padding: 80px 24px;
+            background: radial-gradient(ellipse at center, rgba(0,102,255,0.1) 0%, transparent 70%);
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .cta-section p {
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 28px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: rgba(255,255,255,0.02);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+            padding: 24px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.25);
+        }
+
+        footer a { color: #00d4ff; text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .stats-bar-inner { grid-template-columns: 1fr; gap: 12px; }
+            .hero { padding: 70px 16px 60px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header>
+        <div class="navbar">
+            <div class="logo"><i class="fas fa-bolt"></i> ElectroSafe</div>
+            <nav class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="complaint.html"><i class="fas fa-file-alt"></i> Register</a>
+                <a href="#" onclick="openTrack(event)"><i class="fas fa-search"></i> Track Status</a>
+                <a href="admin.html"><i class="fas fa-shield-alt"></i> Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-badge"><i class="fas fa-bolt"></i> Village Electricity Portal</div>
+        <h1>Report. Track.<br>Resolve Fast.</h1>
+        <p>Empowering rural citizens to register electricity complaints and get them resolved quickly and transparently.</p>
+        <div class="hero-btns">
+            <a href="complaint.html" class="btn"><i class="fas fa-file-alt"></i> File a Complaint</a>
+            <button class="btn btn-secondary" onclick="openTrack(event)"><i class="fas fa-search"></i> Track My Complaint</button>
+        </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stats-bar-inner">
+            <div class="stat-item">
+                <strong id="statTotal">—</strong>
+                <span>Total Complaints</span>
+            </div>
+            <div class="stat-item">
+                <strong id="statResolved">—</strong>
+                <span>Resolved</span>
+            </div>
+            <div class="stat-item">
+                <strong id="statPending">—</strong>
+                <span>Pending</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALERT BANNER -->
+    <div class="section" style="padding-bottom: 0;">
+        <div class="alert-banner">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>⚡ Active outage reported in <strong>Rampur</strong> and <strong>Sonpur</strong> villages. Teams dispatched. Expected resolution: <strong>4 hours</strong>.</p>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="section">
+        <div class="section-title">
+            <h2>Everything You Need</h2>
+            <p>A complete system for citizens and officials to manage electricity complaints efficiently.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Registration</h3>
+                <p>Register your electricity complaint in under 2 minutes with our simple form. No paperwork needed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Real-Time Tracking</h3>
+                <p>Track your complaint status anytime using your unique Complaint ID. Know exactly where things stand.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🕵️</div>
+                <h3>Anonymous Reporting</h3>
+                <p>Report electricity theft or illegal connections anonymously — your identity stays fully protected.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📧</div>
+                <h3>Email Notifications</h3>
+                <p>Department officials are automatically notified by email when a new complaint is filed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🗺️</div>
+                <h3>Location Pinning</h3>
+                <p>Pin your exact location on the map so technicians reach you faster without any confusion.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <h3>Secure Admin Panel</h3>
+                <p>Officials manage, assign, and resolve complaints through a secure password-protected dashboard.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-section">
+        <div class="section">
+            <div class="section-title">
+                <h2>How It Works</h2>
+                <p>Simple 4-step process to get your electricity issue resolved.</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-item">
+                    <div class="step-num-circle">1</div>
+                    <h3>Register Complaint</h3>
+                    <p>Fill in your details, select the issue type, and pin your location on the map.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-num-circle">2</div>
+                    <h3>Get Complaint ID</h3>
+                    <p>Receive a unique Complaint ID instantly. Save it to track your complaint anytime.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-num-circle">3</div>
+                    <h3>Department Notified</h3>
+                    <p>Officials are automatically alerted via email and assign a technician to your case.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-num-circle">4</div>
+                    <h3>Issue Resolved</h3>
+                    <p>Track progress and receive resolution updates. Rate the service when done.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLAINT CATEGORIES -->
+    <div class="section">
+        <div class="section-title">
+            <h2>What Can You Report?</h2>
+            <p>We handle all types of electricity-related issues in your village.</p>
+        </div>
+        <div class="categories-grid">
+            <a href="complaint.html" class="cat-card">
+                <div class="cat-icon">🔌</div>
+                <div class="cat-name">Power Cut</div>
+            </a>
+            <a href="complaint.html" class="cat-card">
+                <div class="cat-icon">📉</div>
+                <div class="cat-name">Low Voltage</div>
+            </a>
+            <a href="complaint.html" class="cat-card">
+                <div class="cat-icon">💥</div>
+                <div class="cat-name">Transformer Damage</div>
+            </a>
+            <a href="complaint.html" class="cat-card">
+                <div class="cat-icon">🌃</div>
+                <div class="cat-name">Street Light</div>
+            </a>
+            <a href="complaint.html" class="cat-card">
+                <div class="cat-icon">⚠️</div>
+                <div class="cat-name">Broken Wire</div>
+            </a>
+            <a href="complaint.html" class="cat-card">
+                <div class="cat-icon">🚨</div>
+                <div class="cat-name">Electricity Theft</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+        <h2>Have an Electricity Issue?</h2>
+        <p>Don't wait in queues. Register your complaint online in 2 minutes.</p>
+        <a href="complaint.html" class="btn" style="font-size: 1rem; padding: 14px 36px;">
+            <i class="fas fa-bolt"></i> Register Now — It's Free
+        </a>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2025 <strong style="color: rgba(255,255,255,0.5);">ElectroSafe</strong> — Village Electricity Grievance Portal &nbsp;|&nbsp;
+        Built with ❤️ for rural India &nbsp;|&nbsp;
+        <a href="admin.html">Admin Login</a></p>
+    </footer>
+
+    <!-- TRACK STATUS MODAL -->
+    <div class="track-overlay" id="trackOverlay" onclick="closeTrackOnBackdrop(event)">
+        <div class="track-modal">
+            <button class="track-close" onclick="closeTrack()"><i class="fas fa-times"></i></button>
+            <h2 style="font-size: 1.2rem; margin-bottom: 6px;"><i class="fas fa-search" style="color:#00d4ff; margin-right:8px;"></i>Track Your Complaint</h2>
+            <p style="font-size:0.85rem; color: rgba(255,255,255,0.4); margin-bottom: 20px;">Enter your Complaint ID to see real-time status.</p>
+
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="trackId" placeholder="e.g. CMS-1234" style="flex:1;" onkeydown="if(event.key==='Enter') trackComplaint()">
+                <button class="btn" onclick="trackComplaint()" style="white-space:nowrap; padding: 12px 20px;">
+                    <i class="fas fa-search"></i> Check
+                </button>
+            </div>
+
+            <div class="track-result" id="statusResult"></div>
+        </div>
+    </div>
+
+    <!-- FABs -->
+    <div class="fab-container">
+        <a href="https://wa.me/919028991967" target="_blank" class="fab" style="background: linear-gradient(135deg,#25D366,#128C7E);" title="Chat on WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <button class="fab" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="fab" onclick="toggleLanguage()" title="Switch Language">
+            <i class="fas fa-language"></i>
+        </button>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // ---- TRACK MODAL ----
+        function openTrack(e) {
+            if (e) e.preventDefault();
+            document.getElementById('trackOverlay').classList.add('show');
+            setTimeout(() => document.getElementById('trackId').focus(), 100);
+        }
+
+        function closeTrack() {
+            document.getElementById('trackOverlay').classList.remove('show');
+            document.getElementById('statusResult').classList.remove('show');
+            document.getElementById('statusResult').innerHTML = '';
+            document.getElementById('trackId').value = '';
+        }
+
+        function closeTrackOnBackdrop(e) {
+            if (e.target === document.getElementById('trackOverlay')) closeTrack();
+        }
+
+        // Override trackComplaint result display for modal
+        const _origTrack = window.trackComplaint;
+        window.trackComplaint = async function() {
+            const id = document.getElementById('trackId').value.trim();
+            if (!id) return;
+
+            const resultDiv = document.getElementById('statusResult');
+            resultDiv.classList.remove('show');
+            resultDiv.innerHTML = '<p style="color:rgba(255,255,255,0.4); font-size:0.9rem;">⏳ Searching...</p>';
+            resultDiv.classList.add('show');
+
+            try {
+                const res = await fetch(`/api/complaints/${id}`);
+                const data = await res.json();
+
+                if (data.success && data.data) {
+                    const c = data.data;
+                    const statusClass = c.status === 'Resolved' ? 'status-resolved' : c.status === 'Rejected' ? 'status-rejected' : 'status-pending';
+                    resultDiv.innerHTML = `
+                        <div class="track-result-row"><span class="label">Complaint ID</span><span class="value" style="color:#00d4ff; font-family:monospace;">${c.complaintId}</span></div>
+                        <div class="track-result-row"><span class="label">Category</span><span class="value">${c.category}</span></div>
+                        <div class="track-result-row"><span class="label">Village</span><span class="value">${c.village}, ${c.district}</span></div>
+                        <div class="track-result-row"><span class="label">Status</span><span class="value"><span class="status-badge ${statusClass}">${c.status}</span></span></div>
+                        <div class="track-result-row"><span class="label">Filed On</span><span class="value">${new Date(c.createdAt).toLocaleDateString('en-IN')}</span></div>
+                        ${c.technician ? `<div class="track-result-row"><span class="label">Technician</span><span class="value">${c.technician}</span></div>` : ''}
+                        ${c.remarks ? `<div class="track-result-row"><span class="label">Remarks</span><span class="value">${c.remarks}</span></div>` : ''}
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p style="color:#ff4757; font-size:0.9rem;"><i class="fas fa-exclamation-circle"></i> Complaint not found. Please check the ID.</p>';
+                }
+            } catch(err) {
+                resultDiv.innerHTML = '<p style="color:#ff4757; font-size:0.9rem;"><i class="fas fa-wifi"></i> Could not connect to server.</p>';
+            }
+        };
+
+        // ---- LIVE STATS ----
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/complaints');
+                const data = await res.json();
+                if (data.success) {
+                    const all = data.data;
+                    document.getElementById('statTotal').textContent = all.length;
+                    document.getElementById('statResolved').textContent = all.filter(c => c.status === 'Resolved').length;
+                    document.getElementById('statPending').textContent = all.filter(c => c.status === 'Pending').length;
+                }
+            } catch(e) {
+                ['statTotal','statResolved','statPending'].forEach(id => document.getElementById(id).textContent = '—');
+            }
+        }
+
+        loadStats();
+    </script>
+
+</body>
+</html>
