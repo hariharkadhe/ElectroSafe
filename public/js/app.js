@@ -28,8 +28,8 @@ let currentLang = localStorage.getItem('lang') || 'en';
 
 // --- DARK MODE & LANGUAGE LOGIC ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Apply saved theme on load
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    // Apply saved theme on load — default is DARK
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     applyTheme(savedTheme === 'dark');
     // Apply saved language
     applyLanguage(currentLang);

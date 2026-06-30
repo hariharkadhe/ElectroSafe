@@ -4,44 +4,44 @@
    CSS VARIABLES & ROOT
    =========================== */
 /* ===========================
-   LIGHT MODE (DEFAULT)
+   DARK MODE (DEFAULT)
    =========================== */
 :root {
     /* Primary */
-    --primary:        #0066ff;
-    --primary-dark:   #0052cc;
-    --primary-glow:   rgba(0, 102, 255, 0.2);
+    --primary:        #00d4ff;
+    --primary-dark:   #0099cc;
+    --primary-glow:   rgba(0, 212, 255, 0.3);
 
     /* Accent */
-    --accent:         #f5a623;
-    --accent-dark:    #d4880a;
+    --accent:         #f5c518;
+    --accent-dark:    #d4a800;
 
-    /* Backgrounds - LIGHT */
-    --bg-base:        #f0f4ff;
-    --bg-surface:     #ffffff;
-    --bg-card:        #ffffff;
-    --bg-card-hover:  #f8faff;
+    /* Backgrounds - DARK */
+    --bg-base:        #0a0e1a;
+    --bg-surface:     #0f1629;
+    --bg-card:        rgba(255,255,255,0.04);
+    --bg-card-hover:  rgba(255,255,255,0.08);
 
-    /* Text - DARK for light mode */
-    --text-primary:   #1a1f36;
-    --text-secondary: #4a5568;
-    --text-muted:     #9aa5b4;
+    /* Text */
+    --text-primary:   #e8edf5;
+    --text-secondary: #8a96a8;
+    --text-muted:     #4a5568;
 
     /* Status */
-    --success:        #00b057;
-    --warning:        #d4920a;
-    --danger:         #e53e3e;
+    --success:        #00e676;
+    --warning:        #f5c518;
+    --danger:         #ff4757;
 
     /* Borders & Shadows */
-    --border:         rgba(0,0,0,0.1);
-    --border-glow:    rgba(0,102,255,0.3);
-    --shadow-card:    0 4px 24px rgba(0,0,0,0.08);
-    --shadow-glow:    0 0 20px rgba(0,102,255,0.1);
+    --border:         rgba(255,255,255,0.08);
+    --border-glow:    rgba(0,212,255,0.4);
+    --shadow-card:    0 8px 32px rgba(0,0,0,0.4);
+    --shadow-glow:    0 0 30px rgba(0,212,255,0.15);
 
     /* Gradients */
-    --gradient-hero:  linear-gradient(135deg, #e8f0ff 0%, #f0f4ff 100%);
-    --gradient-btn:   linear-gradient(135deg, #0066ff, #0044cc);
-    --gradient-card:  linear-gradient(145deg, #ffffff, #f8faff);
+    --gradient-hero:  linear-gradient(135deg, #0a0e1a 0%, #0d1b3e 50%, #0a0e1a 100%);
+    --gradient-btn:   linear-gradient(135deg, #00d4ff, #0066ff);
+    --gradient-card:  linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
 
     /* Transition */
     --transition:     all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
