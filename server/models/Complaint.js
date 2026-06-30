@@ -20,19 +20,19 @@ const ComplaintSchema = new mongoose.Schema({
     },
     district: {
         type: String,
-        required: true
+        default: ''
     },
     village: {
         type: String,
-        required: true
+        default: ''
     },
     category: {
         type: String,
-        required: true
+        default: 'Other'
     },
     description: {
         type: String,
-        required: true
+        default: ''
     },
     photoURL: {
         type: String,
