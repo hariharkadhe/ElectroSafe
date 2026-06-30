@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Complaint = require('../models/Complaint');
+const connectDB = require('../config/database');
 
 // Generate unique Complaint ID
 const generateId = () => `CMS-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`;
@@ -11,6 +12,8 @@ const generateId = () => `CMS-${Math.floor(1000 + Math.random() * 9000)}-${Date.
 // -----------------------------------------------
 router.post('/', async (req, res) => {
     try {
+        await connectDB(); // Ensure DB connected (critical for serverless)
+
         const {
             name, mobile, email, district, village,
             category, description, photoURL,
@@ -24,10 +27,10 @@ router.post('/', async (req, res) => {
             name:   anonymous ? 'Anonymous' : (name || 'Anonymous'),
             mobile: anonymous ? 'Hidden'    : (mobile || 'Hidden'),
             email:  anonymous ? ''          : (email || ''),
-            district,
-            village,
-            category,
-            description,
+            district:    district    || '',
+            village:     village     || '',
+            category:    category    || 'Other',
+            description: description || '',
             photoURL:  photoURL  || null,
             latitude:  latitude  || null,
             longitude: longitude || null,
@@ -40,7 +43,7 @@ router.post('/', async (req, res) => {
 
     } catch (error) {
         console.error('Error creating complaint:', error);
-        res.status(500).json({ success: false, message: 'Server Error: ' + error.message });
+        res.status(500).json({ success: false, message: error.message || 'Server Error' });
     }
 });
 
