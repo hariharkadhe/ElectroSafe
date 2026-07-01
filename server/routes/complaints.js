@@ -40,8 +40,8 @@ router.post('/', async (req, res) => {
             history: []
         });
 
-        // 📧 Send email notification to admin asynchronously (don't await it to keep response fast)
-        sendAdminNotification(newComplaint);
+        // 📧 Must AWAIT in serverless, otherwise Vercel kills the process before email sends!
+        await sendAdminNotification(newComplaint);
 
         res.status(201).json({ success: true, data: newComplaint });
 
