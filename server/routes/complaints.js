@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Complaint = require('../models/Complaint');
 const connectDB = require('../config/database');
+const { sendAdminNotification } = require('../config/email');
 
 // Generate unique Complaint ID
 const generateId = () => `CMS-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`;
@@ -38,6 +39,9 @@ router.post('/', async (req, res) => {
             status: 'Pending',
             history: []
         });
+
+        // 📧 Send email notification to admin asynchronously (don't await it to keep response fast)
+        sendAdminNotification(newComplaint);
 
         res.status(201).json({ success: true, data: newComplaint });
 
