@@ -264,9 +264,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="description" rows="4" placeholder="Describe the issue in detail (what happened, when it started, how severe it is)..."
+                    <label style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Description</span>
+                        <span id="charCount" style="font-size:0.78rem; color: var(--text-muted); font-weight:400;">0 / 500</span>
+                    </label>
+                    <textarea id="description" rows="4" maxlength="500"
+                        placeholder="Describe the issue in detail (what happened, when it started, how severe it is)..."
+                        oninput="updateCharCount(this)"
                         required></textarea>
+                    <div style="margin-top:6px; height:3px; background:var(--border); border-radius:2px; overflow:hidden;">
+                        <div id="charBar" style="height:100%; width:0%; background: linear-gradient(90deg,#00d4ff,#0066ff); border-radius:2px; transition: width 0.2s ease, background 0.3s;"></div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -455,6 +463,21 @@
             document.getElementById('latitude').value = '';
             document.getElementById('longitude').value = '';
             document.getElementById('locationInfo').classList.remove('active');
+        }
+
+        // ---- CHAR COUNTER ----
+        function updateCharCount(el) {
+            const max = 500;
+            const len = el.value.length;
+            const pct = (len / max) * 100;
+            document.getElementById('charCount').textContent = len + ' / ' + max;
+            const bar = document.getElementById('charBar');
+            bar.style.width = pct + '%';
+            if (pct > 85) {
+                bar.style.background = 'linear-gradient(90deg,#f5c518,#ff4757)';
+            } else {
+                bar.style.background = 'linear-gradient(90deg,#00d4ff,#0066ff)';
+            }
         }
 
         // ---- PHOTO PREVIEW ----
