@@ -20,7 +20,11 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes
 const complaintRoutes = require('./routes/complaints');
+const authRoutes = require('./routes/auth');
+
 app.use('/api/complaints', complaintRoutes);
+app.use('/api/auth', authRoutes);
+
 
 // Serve Frontend
 app.get('*', (req, res) => {
