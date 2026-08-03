@@ -94,6 +94,52 @@ router.post('/login', async (req, res) => {
     }
 });
 
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// -----------------------------------------------
+// @route   POST /api/auth/google
+// @desc    Sign in or Register user via Google
+// -----------------------------------------------
+router.post('/google', async (req, res) => {
+    try {
+        await connectDB();
+
+        const { credential } = req.body;
+
+        if (!credential) {
+            return res.status(400).json({ success: false, message: 'Google authentication failed. No token provided.' });
+        }
+
+        // Verify the Google ID token
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            // audience: process.env.GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const payload = ticket.getPayload();
+        const { name, email, picture } = payload;
+
+        // Check if user already exists
+        let user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+            // Create a new user with a random secure password since they use Google
+            const randomPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
+            user = await User.create({ 
+                name: name || 'Google User', 
+                email: email.toLowerCase(), 
+                password: randomPassword,
+                avatar: picture || ''
+            });
+        }
+
+        sendToken(res, user, 200, 'Signed in with Google successfully!');
+    } catch (err) {
+        console.error('Google Auth error:', err.message);
+        res.status(500).json({ success: false, message: 'Invalid Google token or Server error. Please try again.' });
+    }
+});
+
 // -----------------------------------------------
 // @route   GET /api/auth/me
 // @desc    Get current logged-in user (via JWT)

@@ -134,10 +134,24 @@
                 <span id="authAlertMsg"></span>
             </div>
 
-            <button class="btn-google" onclick="showGoogleNote()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                Sign up with Google
-            </button>
+            <!-- Google Identity Services Container -->
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID_HERE"
+                 data-context="signup"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signup_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 style="display: flex; justify-content: center; margin-bottom: 20px;">
+            </div>
 
             <div class="auth-divider"><hr><span>or create with email</span><hr></div>
 
@@ -177,6 +191,7 @@
         </div>
     </div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         if (localStorage.getItem('es_token')) window.location.href = 'index.html';
 
@@ -186,8 +201,27 @@
             document.getElementById('authAlertMsg').textContent = msg;
         }
 
-        function showGoogleNote() {
-            showAlert('Google Sign-Up requires OAuth setup. Use email/password registration for now.');
+        async function handleCredentialResponse(response) {
+            document.getElementById('authAlert').className = 'auth-alert';
+            try {
+                const res = await fetch('/api/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('es_token', data.token);
+                    localStorage.setItem('es_user', JSON.stringify(data.user));
+                    showAlert('Account created with Google successfully! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = 'index.html', 900);
+                } else {
+                    showAlert(data.message || 'Google Sign-Up failed.');
+                }
+            } catch (err) {
+                showAlert('Could not connect to server. Please try again.');
+            }
         }
 
         function checkStrength(val) {
