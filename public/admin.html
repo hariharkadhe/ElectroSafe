@@ -7,6 +7,7 @@
     <title>Admin Login - ElectroSafe</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* ---- LOGIN PAGE ---- */
         #loginPage {
@@ -352,6 +353,41 @@
                 </div>
             </div>
 
+            <!-- Analytics & Reports -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <h2><i class="fas fa-chart-line"></i> Analytics & Reports</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="updateAnalytics('weekly')" id="btn-weekly" style="font-size: 0.85rem; padding: 6px 12px;">Weekly</button>
+                        <button class="btn btn-secondary" onclick="updateAnalytics('monthly')" id="btn-monthly" style="font-size: 0.85rem; padding: 6px 12px; background: rgba(0, 212, 255, 0.2); border-color: #00d4ff; color: #fff;">Monthly</button>
+                        <button class="btn btn-secondary" onclick="updateAnalytics('yearly')" id="btn-yearly" style="font-size: 0.85rem; padding: 6px 12px;">Yearly</button>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <canvas id="complaintsChart" style="max-height: 300px;"></canvas>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="font-size: 1.1rem; color: #00d4ff;">Report Data</h3>
+                    <button class="btn" onclick="downloadCSVReport()" style="padding: 6px 14px; font-size: 0.85rem;"><i class="fas fa-file-download"></i> Download CSV</button>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Total Complaints</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                            <tr><td colspan="2" style="text-align:center; padding: 20px; color: rgba(255,255,255,0.3);">No data available</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Complaints Table -->
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -496,14 +532,20 @@
             }
         });
 
-        // ===================== DASHBOARD =====================
+        // ===================== DASHBOARD & ANALYTICS =====================
+        let allComplaintsData = [];
+        let currentChart = null;
+        let currentReportData = [];
+        
         async function loadComplaints() {
             try {
                 const response = await fetch(API_URL);
                 const result = await response.json();
                 if (result.success) {
+                    allComplaintsData = result.data;
                     renderTable(result.data);
                     updateStats(result.data);
+                    updateAnalytics('monthly'); // Default to monthly view
                 }
             } catch (error) {
                 document.getElementById('complaintTableBody').innerHTML =
@@ -573,6 +615,144 @@
         document.getElementById('editModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
+
+        // ===================== ANALYTICS LOGIC =====================
+        function updateAnalytics(timeframe) {
+            // Update button styles
+            ['weekly', 'monthly', 'yearly'].forEach(tf => {
+                const btn = document.getElementById('btn-' + tf);
+                if (tf === timeframe) {
+                    btn.style.background = 'rgba(0, 212, 255, 0.2)';
+                    btn.style.borderColor = '#00d4ff';
+                    btn.style.color = '#fff';
+                } else {
+                    btn.style.background = 'rgba(255, 255, 255, 0.05)';
+                    btn.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    btn.style.color = 'var(--text-muted)';
+                }
+            });
+
+            // Aggregate Data
+            const counts = {};
+            
+            allComplaintsData.forEach(c => {
+                if (!c.createdAt) return;
+                const d = new Date(c.createdAt);
+                let key = '';
+                
+                if (timeframe === 'weekly') {
+                    // Get year and week number
+                    const startDate = new Date(d.getFullYear(), 0, 1);
+                    const days = Math.floor((d - startDate) / (24 * 60 * 60 * 1000));
+                    const weekNumber = Math.ceil(days / 7);
+                    key = `Week ${weekNumber}, ${d.getFullYear()}`;
+                } else if (timeframe === 'monthly') {
+                    // e.g. "Aug 2026"
+                    const month = d.toLocaleString('default', { month: 'short' });
+                    key = `${month} ${d.getFullYear()}`;
+                } else if (timeframe === 'yearly') {
+                    key = `${d.getFullYear()}`;
+                }
+                
+                counts[key] = (counts[key] || 0) + 1;
+            });
+
+            // Prepare sorted arrays for the chart and table
+            // Sort keys chronologically (simple string sort might fail, but sufficient for standard format if recent is first or last)
+            // For simplicity, we just take the object entries. Since allComplaintsData is sorted newest first, the keys might be backwards.
+            // Let's reverse them so the graph goes left to right (oldest to newest).
+            const rawEntries = Object.entries(counts).reverse();
+            
+            const labels = rawEntries.map(e => e[0]);
+            const data = rawEntries.map(e => e[1]);
+            
+            // Store for CSV
+            currentReportData = rawEntries;
+
+            renderChart(labels, data, timeframe);
+            renderReportTable(rawEntries);
+        }
+
+        function renderChart(labels, data, timeframe) {
+            const ctx = document.getElementById('complaintsChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            Chart.defaults.color = 'rgba(255, 255, 255, 0.6)';
+            
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Complaints',
+                        data: data,
+                        backgroundColor: 'rgba(0, 212, 255, 0.6)',
+                        borderColor: '#00d4ff',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderReportTable(entries) {
+            const tbody = document.getElementById('reportTableBody');
+            if (entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding: 20px; color: rgba(255,255,255,0.3);">No data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = entries.map(e => `
+                <tr>
+                    <td>${e[0]}</td>
+                    <td><span class="status-badge" style="background: rgba(0,212,255,0.1); color:#00d4ff;">${e[1]}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function downloadCSVReport() {
+            if (currentReportData.length === 0) {
+                alert("No data available to download.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Period,Total Complaints\n";
+            
+            currentReportData.forEach(row => {
+                // Wrap in quotes to avoid issues with commas in "Week 32, 2026"
+                csvContent += `"${row[0]}",${row[1]}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "electrosafe_complaints_report.csv");
+            document.body.appendChild(link); // Required for FF
+            
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 
     <style>
