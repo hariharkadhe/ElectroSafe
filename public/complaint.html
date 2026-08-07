@@ -252,16 +252,22 @@
                 <!-- SECTION 3: Issue -->
                 <div class="form-group">
                     <label><i class="fas fa-bolt" style="color: var(--primary, #00d4ff); margin-right:6px;"></i>Complaint Category</label>
-                    <select id="category" required>
+                    <select id="category" required onchange="checkCategory()">
                         <option value="">Select Issue Type</option>
                         <option value="No electricity">⚡ No electricity (Power Cut)</option>
                         <option value="Low voltage">📉 Low voltage / Fluctuation</option>
                         <option value="Transformer damage">💥 Transformer Damage/Sparks</option>
                         <option value="Street light">🌃 Street light not working</option>
                         <option value="Wire broken">🔌 Wire broken / Fallen Pole</option>
+                        <option value="Meter issue">⏲️ Meter Issue / Incorrect Bill</option>
+                        <option value="Frequent tripping">🔌 Frequent Tripping</option>
                         <option value="Theft">🚨 Electricity Theft</option>
+                        <option value="Other">📝 Other (Please specify)</option>
                     </select>
-                </div>
+                    
+                    <div id="otherCategoryDiv" style="display: none; margin-top: 12px;">
+                        <input type="text" id="otherCategory" placeholder="Please specify your issue" style="width: 100%;">
+                    </div>
 
                 <div class="form-group">
                     <label style="display:flex; justify-content:space-between; align-items:center;">
@@ -328,10 +334,24 @@
             } else {
                 identityFields.style.opacity = '1';
                 identityFields.style.pointerEvents = 'auto';
-                nameInput.setAttribute('required', 'true');
-                mobileInput.setAttribute('required', 'true');
+                }
             }
-        }
+
+            // ---- CATEGORY TOGGLE ----
+            function checkCategory() {
+                const category = document.getElementById('category').value;
+                const otherDiv = document.getElementById('otherCategoryDiv');
+                const otherInput = document.getElementById('otherCategory');
+                
+                if (category === 'Other') {
+                    otherDiv.style.display = 'block';
+                    otherInput.setAttribute('required', 'true');
+                } else {
+                    otherDiv.style.display = 'none';
+                    otherInput.removeAttribute('required');
+                    otherInput.value = '';
+                }
+            }
 
         // ---- MAP ----
         function toggleMap() {

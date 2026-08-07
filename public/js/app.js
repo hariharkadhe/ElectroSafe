@@ -160,11 +160,19 @@ if (complaintForm) {
 
         const isAnon = document.getElementById('anonymous').value === 'true';
 
+        let finalCategory = document.getElementById('category').value;
+        if (finalCategory === 'Other') {
+            const otherVal = document.getElementById('otherCategory').value.trim();
+            if (otherVal) {
+                finalCategory = 'Other: ' + otherVal;
+            }
+        }
+
         const formData = {
             anonymous: isAnon,
             district: document.getElementById('district').value,
             village: document.getElementById('village').value,
-            category: document.getElementById('category').value,
+            category: finalCategory,
             description: document.getElementById('description').value,
         };
 
